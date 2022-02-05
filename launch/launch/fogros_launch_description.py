@@ -28,8 +28,12 @@ from .actions import DeclareLaunchArgument
 from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
 
+
 if TYPE_CHECKING:
     from .actions.include_launch_description import IncludeLaunchDescription  # noqa: F401
+
+import pickle
+import rclpy
 
 
 class FogROSLaunchDescription(LaunchDescriptionEntity):
@@ -57,11 +61,20 @@ class FogROSLaunchDescription(LaunchDescriptionEntity):
         deprecated_reason: Optional[Text] = None
     ) -> None:
         """Create a LaunchDescription."""
+        launch.logging.get_logger().info("init")
         self.__entities = list(initial_entities) if initial_entities is not None else []
         self.__deprecated_reason = deprecated_reason
 
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
+        for entity in self.entities:
+            if entity.__class__.__name__ == "Node" and entity.to_cloud:
+                print("to the cloud")
+                dumped_node_str = pickle.dumps(entity)
+                entity = pickle.loads(dumped_node_str)
+            else:
+                print(entity.__class__.__name__)
+
         if self.__deprecated_reason is not None:
             if 'current_launch_file_path' in context.get_locals_as_dict():
                 message = 'launch file [{}] is deprecated: {}'.format(
