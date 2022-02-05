@@ -28,6 +28,7 @@ from .event_handler import EventHandler
 from .invalid_launch_file_error import InvalidLaunchFileError
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
+from .fogros_launch_description import FogROSLaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
 from .launch_description_source import LaunchDescriptionSource
 from .launch_introspector import LaunchIntrospector
@@ -57,6 +58,7 @@ __all__ = [
     'LaunchDescriptionSource',
     'LaunchIntrospector',
     'LaunchService',
+    'FogROSLaunchDescription',
     'SomeActionsType',
     'SomeActionsType_types_tuple',
     'SomeSubstitutionsType',
