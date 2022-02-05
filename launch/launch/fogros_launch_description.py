@@ -71,6 +71,8 @@ class FogROSLaunchDescription(LaunchDescriptionEntity):
             if entity.__class__.__name__ == "Node" and entity.to_cloud:
                 print("to the cloud")
                 dumped_node_str = pickle.dumps(entity)
+                with open("/opt/ros2_ws/src/fogros2/fogros2/test_node", "wb+") as f:
+                    f.write(dumped_node_str)
                 entity = pickle.loads(dumped_node_str)
             else:
                 print(entity.__class__.__name__)
