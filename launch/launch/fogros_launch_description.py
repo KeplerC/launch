@@ -62,20 +62,32 @@ class FogROSLaunchDescription(LaunchDescriptionEntity):
     ) -> None:
         """Create a LaunchDescription."""
         launch.logging.get_logger().info("init")
-        self.__entities = list(initial_entities) if initial_entities is not None else []
+        #self.__entities = list(initial_entities) if initial_entities is not None else []
+        self.__entities = []
+        self.__to_cloud_entities = []
+        if initial_entities:
+            for entity in initial_entities:
+                if entity.__class__.__name__ == "Node" and entity.to_cloud:
+                    self.__to_cloud_entities += entity
+                else:
+                    self.__entities += entity
         self.__deprecated_reason = deprecated_reason
+
 
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
-        for entity in self.entities:
-            if entity.__class__.__name__ == "Node" and entity.to_cloud:
-                print("to the cloud")
-                dumped_node_str = pickle.dumps(entity)
-                with open("/opt/ros2_ws/src/fogros2/fogros2/test_node", "wb+") as f:
-                    f.write(dumped_node_str)
-                entity = pickle.loads(dumped_node_str)
-            else:
-                print(entity.__class__.__name__)
+        # for entity in self.entities:
+        #     if entity.__class__.__name__ == "Node" and entity.to_cloud:
+        #         print("to the cloud")
+        #         dumped_node_str = pickle.dumps(entity)
+        #         with open("/opt/ros2_ws/src/fogros2/fogros2/test_node", "wb+") as f:
+        #             f.write(dumped_node_str)
+        #     else:
+        #         print(entity.__class__.__name__)
+        with open("/opt/ros2_ws/src/fogros2/fogros2/to_cloud_nodes", "wb+") as f:
+            print("to be dumped")
+            dumped_node_str = pickle.dumps(self.__to_cloud_entities)
+            f.write(dumped_node_str)
 
         if self.__deprecated_reason is not None:
             if 'current_launch_file_path' in context.get_locals_as_dict():
@@ -184,7 +196,11 @@ class FogROSLaunchDescription(LaunchDescriptionEntity):
 
     def add_entity(self, entity: LaunchDescriptionEntity) -> None:
         """Add an entity to the LaunchDescription."""
-        self.__entities.append(entity)
+        #self.__entities.append(entity)
+        if entity.__class__.__name__ == "Node" and entity.to_cloud:
+            self.__to_cloud_entities.append(entity)
+        else:
+            self.__entities.append(entity)
 
     def add_action(self, action: Action) -> None:
         """Add an action to the LaunchDescription."""
